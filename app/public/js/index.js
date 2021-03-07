@@ -14,9 +14,9 @@ var pc;
 var state = 'init';
 var pcConfig = {
   'iceServers': [{
-    'urls': 'turn:stun.ukerd.com:3478',
-    'credential': "123456",
-    'username': "longge"
+    'urls': 'turn:zeolim.top:3478',
+    'credential': '123456',
+    'username': 'longge'
   }]
 };
 var offerdesc = null;
@@ -90,8 +90,8 @@ function btnCallClick() {
     } else {
       layer.closeAll();
       leave();
-      if(socket){
-        sendMessage(7,'init');
+      if (socket) {
+        sendMessage(7, 'init');
 
       }
     }
@@ -109,8 +109,8 @@ function sendMessage(type, data) {
 var send = document.querySelector("a.send");
 send.onclick = () => {
   var sendMessage = document.querySelector("#sendMessage").value;
-  if(sendMessage.length == 0){
-    layer.msg('尼玛，输入内容啊', {icon: 2});
+  if (sendMessage.length == 0) {
+    layer.msg('WARN: 空内容', { icon: 2 });
     return
   }
   socket.emit('message', room, { type: 1, data: sendMessage });
@@ -137,38 +137,37 @@ socket.on('message', (room, id, data) => {
     item.innerHTML = "<img src='" + data.data + "' style='width:100px;height:100px'>";
   } else if (data.type == 3 || data.type == 4 || data.type == 5 || data.type == 6 || data.type == 7) {//视频消息
 
-    
+
 
     if (data.type == 3) {
       state = data.data;
       item.innerHTML = "视频通话";
       btnCallClick();
       localVideo.classList.add("blur");
-    }else if(data.type == 7){
+    } else if (data.type == 7) {
       leave();
       layer.closeAll();
-    }
-    else if(data.type == 4 || data.type == 5 || data.type == 6){
+    } else if (data.type == 4 || data.type == 5 || data.type == 6) {
       var callData = data.data;
       if (callData.hasOwnProperty('type') && callData.type === 'offer') {
-        
+
         pc.setRemoteDescription(new RTCSessionDescription(callData));
         pc.createAnswer()
           .then(getAnswer)
           .catch((err) => {
             console.error("Failed createAnswer error :", err);
           });
-  
+
       } else if (callData.hasOwnProperty('type') && callData.type == 'answer') {
         pc.setRemoteDescription(new RTCSessionDescription(callData));
-  
+
       } else if (callData.hasOwnProperty('type') && callData.type === 'candidate') {
         var candidate = new RTCIceCandidate({
           sdpMLineIndex: callData.label,
           candidate: callData.candidate
         });
         pc.addIceCandidate(candidate);
-  
+
       } else {
         console.log('the message is invalid!', callData);
       }
@@ -228,7 +227,7 @@ socket.on('full', (roomid, id) => {
   console.log('receive full message', roomid, id);
   leave();
   state = 'leaved';
-  layer.msg('卧槽，房间满啦', {icon: 2});
+  layer.msg('WARN: 房间到达人数上限', { icon: 2 });
 
 });
 
